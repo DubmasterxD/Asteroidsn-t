@@ -6,59 +6,50 @@ namespace Asteroids
     public class SpawningBuffs : MonoBehaviour
     {
         [SerializeField] List<Buff> buffsPrefabs;
-        [SerializeField] Vector3 minResp = new Vector3(-5, -5, 0);
-        [SerializeField] Vector3 maxResp = new Vector3(5, 5, 0);
-        [SerializeField] Vector3 waitPlace = new Vector3(0, 30, 0);
-        [SerializeField] float spawnTime = 60;
+        [SerializeField] Collider2D spawnArea;
+        [SerializeField] float spawnInterval = 60;
         [SerializeField] float maxStayTime = 5;
 
         float timeSinceLastSpawned;
-        float currentStayTime;
         List<Buff> buffs;
-        Buff currentBuff;
 
-        Game game;
+        GameManager game;
 
         private void Awake()
         {
-            game = FindObjectOfType<Game>();
+            game = FindObjectOfType<GameManager>();
         }
 
         void Start()
         {
+            CreateBuffs();
+        }
+
+        private void CreateBuffs()
+        {
             buffs = new List<Buff>();
-            foreach(Buff buff in buffsPrefabs)
+            foreach (Buff buff in buffsPrefabs)
             {
-                buffs.Add(Instantiate(buff));
-                buff.Deactivate();
+                Buff newBuff = Instantiate(buff);
+                newBuff.Set(maxStayTime);
+                buffs.Add(newBuff);
             }
         }
-        
+
         void Update()
         {
             timeSinceLastSpawned += Time.deltaTime;
-            currentStayTime += Time.deltaTime;
-            if (!game.isGameOver && timeSinceLastSpawned >= spawnTime)
+            if (!game.isGameOver && timeSinceLastSpawned >= spawnInterval)
             {
                 SpawnRandomBuff();
-            }
-            if (!game.isGameOver && currentStayTime >= maxStayTime)
-            {
-                DeactivateCurrentBuff();
+                timeSinceLastSpawned = 0;
             }
         }
 
         private void SpawnRandomBuff()
         {
-            timeSinceLastSpawned = 0;
-            currentBuff = buffs[Random.Range(0, 3)];
-            currentBuff.Activate(Random.Range(minResp[0], maxResp[0]), Random.Range(minResp[1], maxResp[1]));
-            currentStayTime = 0;
-        }
-
-        private void DeactivateCurrentBuff()
-        {
-            currentBuff.gameObject.SetActive(false);
+            Buff buff = buffs[Random.Range(0, buffs.Count)];
+            buff.Activate(spawnArea);
         }
     }
 }

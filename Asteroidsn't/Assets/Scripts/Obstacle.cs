@@ -13,15 +13,27 @@ namespace Asteroids
         private float inactiveObstaclesXLimit = 29;
         public enum Types { Triangle, Square };
         public Types type;
+        int obstacleIndex;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
         }
 
-        void Start()
+        public void Create(int index)
         {
+            obstacleIndex = index;
+        }
+
+        public void Spawn(Collider2D areaCollider)
+        {
+            gameObject.SetActive(true);
             RandomizeMovement();
+        }
+
+        public void Destroy()
+        {
+
         }
 
         public void RandomizeMovement()
@@ -42,20 +54,21 @@ namespace Asteroids
             {
                 gameObject.SetActive(false);
                 Instantiate(destroyParticlePrefab, transform.position, Quaternion.identity);
-                if (!FindObjectOfType<SpawningObstacles>().ContainsObstacle(gameObject))
-                {
-                    Vector2 tmp = Vector2.negativeInfinity;
-                    if (type == Types.Square)
-                    {
-                        tmp = transform.position;
-                    }
-                    transform.SetPositionAndRotation(new Vector3(inactiveObstaclesXLimit + 5, transform.position.y, 0), transform.rotation);
-                    if (tmp[0] != float.NegativeInfinity)
-                    {
-                        FindObjectOfType<SpawningObstacles>().MakeTriangles(tmp);
-                    }
-                    FindObjectOfType<SpawningObstacles>().AddToList(gameObject);
-                }
+                FindObjectOfType<SpawningObstacles>().DestroyedObstacleWithindex(obstacleIndex);
+                //if (!FindObjectOfType<SpawningObstacles>().ContainsObstacle(gameObject))
+                //{
+                //    Vector2 tmp = Vector2.negativeInfinity;
+                //    if (type == Types.Square)
+                //    {
+                //        tmp = transform.position;
+                //    }
+                //    transform.SetPositionAndRotation(new Vector3(inactiveObstaclesXLimit + 5, transform.position.y, 0), transform.rotation);
+                //    if (tmp[0] != float.NegativeInfinity)
+                //    {
+                //        FindObjectOfType<SpawningObstacles>().MakeTriangles(tmp);
+                //    }
+                //    FindObjectOfType<SpawningObstacles>().AddToList(gameObject);
+                //}
             }
         }
     }

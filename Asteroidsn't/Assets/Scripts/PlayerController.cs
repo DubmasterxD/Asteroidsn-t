@@ -17,14 +17,14 @@ namespace Asteroids
         float currSpeed = 0;
 
         Animator anim;
-        Game game;
+        GameManager game;
         Stats stats;
 
         void Start()
         {
             anim = GetComponent<Animator>();
             stats = GetComponent<Stats>();
-            game = FindObjectOfType<Game>();
+            game = FindObjectOfType<GameManager>();
         }
 
         void Update()
@@ -83,9 +83,10 @@ namespace Asteroids
             timeSinceLastShot += Time.deltaTime;
             if (Input.GetKey(KeyCode.Space))
             {
-                if (timeSinceLastShot >= stats.ShotsDelay)
+                if (timeSinceLastShot >= stats.shotsDelay)
                 {
                     Instantiate(shotPrefab, gun.position, transform.rotation);
+                    timeSinceLastShot = 0;
                 }
             }
         }
@@ -110,7 +111,7 @@ namespace Asteroids
 
         private void Turn(float turnSpeed)
         {
-            transform.RotateAround(Vector3.zero, Vector3.forward, turnSpeed);
+            transform.RotateAround(new Vector3(0,0,0), new Vector3(0,0,1), turnSpeed);
         }
 
         private void OnCollisionEnter2D(Collision2D collision)

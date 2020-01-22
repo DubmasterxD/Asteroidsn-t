@@ -7,11 +7,19 @@ namespace Asteroids
         enum Bonuses { Plus, ASBoost, Destroy };
         [SerializeField] Bonuses bonus = default;
 
+        float maxStayTime = 1;
+        float currentStayTime = 0;
+
         Stats stats;
 
         private void Awake()
         {
             stats = FindObjectOfType<Stats>();
+        }
+
+        private void Update()
+        {
+            currentStayTime += Time.deltaTime;
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -43,10 +51,13 @@ namespace Asteroids
 
         private void Bonus3Action() //TODO
         {
-            for (int i = 0; i < 100 / FindObjectOfType<SpawningObstacles>().activeRate; i++)
-            {
-                stats.AddPoint();
-            }
+            stats.AddPoints(100);
+        }
+
+        public void Activate(Collider2D spawnArea)
+        {
+            gameObject.SetActive(true);
+            transform.position = spawnArea.bounds.size;
         }
 
         public void Activate(float positionX, float positionY)
@@ -55,7 +66,13 @@ namespace Asteroids
             transform.SetPositionAndRotation(new Vector3(positionX, positionY, 0), Quaternion.identity);
         }
 
-        public void Deactivate()
+        public void Set(float newMaxStayTime)
+        {
+            maxStayTime = newMaxStayTime;
+            Deactivate();
+        }
+
+        private void Deactivate()
         {
             gameObject.SetActive(false);
         }

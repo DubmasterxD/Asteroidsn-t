@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 namespace Asteroids
 {
-    public class Game : MonoBehaviour
+    public class GameManager : MonoBehaviour
     {
         [SerializeField] GameObject gameOverUI = null;
 

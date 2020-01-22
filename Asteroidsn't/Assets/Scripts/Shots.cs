@@ -22,7 +22,7 @@ namespace Asteroids
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            FindObjectOfType<Stats>().AddPoint();
+            FindObjectOfType<Stats>().AddPoints(1);
             Destroy(gameObject);
         }
     }

@@ -7,22 +7,26 @@ namespace Asteroids
     {
         [SerializeField] Text pointsText = null;
         [SerializeField] Text livesLeftText = null;
-        [SerializeField] float shotsDelay = 0.2f;
+        [SerializeField] float startingShotsDelay = 0.2f;
 
         int points = 0;
         int livesLeft = 3;
+        public float shotsDelay { get; private set; } = 1;
 
-        public float ShotsDelay { get => shotsDelay; }
-
-        public void AddPoint()
+        private void Start()
         {
-            points++;
+            shotsDelay = startingShotsDelay;
+        }
+
+        public void AddPoints(int pointsToAdd)
+        {
+            points += pointsToAdd;
             pointsText.text = "Score : " + points;
         }
 
         public void IncreaseAttackSpeed(float multiplier)
         {
-            shotsDelay *= multiplier;
+            shotsDelay /= multiplier;
         }
 
         public void AddLife()
@@ -43,8 +47,9 @@ namespace Asteroids
 
         private void Die()
         {
+            //TODO death
             Destroy(gameObject);
-            FindObjectOfType<Game>().GameOver();
+            FindObjectOfType<GameManager>().GameOver();
         }
     }
 }

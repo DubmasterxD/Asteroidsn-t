@@ -5,103 +5,90 @@ namespace Asteroids
 {
     public class SpawningObstacles : MonoBehaviour
     {
-        public int squaresAmount = 30;
-        public int trianglesAmount = 80;
-        public GameObject squaresPrefab;
-        public GameObject trianglesPrefab;
-        public float activeRate = 3f;
-        public Vector2 activeMin;
-        public Vector2 activeMax;
-        private List<GameObject> inactiveSquares;
-        private List<GameObject> inactiveTriangles;
-        private Vector2 inactiveObstaclesSpawnLocation = new Vector2(40, 0);
-        private float timeSinceLastActivated;
+        [SerializeField] ObstacleSpawner[] obstaclesPrefabs = null;
+        [SerializeField] int spawnRateBoostInterval = 10;
+        [SerializeField] float spawnRateMultiplier = 1.1f;
+        [SerializeField] Collider2D spawnArea = null;
+
+        float timer = 0;
+        float currentSpawnRateMultiplier = 1; 
+        List<Obstacle>[] obstacles;
+        GameManager game;
         
-        void Start()
+        [System.Serializable]
+        struct ObstacleSpawner
         {
-            inactiveSquares = new List<GameObject>();
-            inactiveTriangles = new List<GameObject>();
-            for (int i = 0; i < squaresAmount; i++)
-            {
-                GameObject obstacle = Instantiate(squaresPrefab, inactiveObstaclesSpawnLocation, Quaternion.identity);
-                obstacle.SetActive(false);
-                inactiveSquares.Add(obstacle);
-            }
-            for (int i = 0; i < trianglesAmount; i++)
-            {
-                GameObject obstacle = Instantiate(squaresPrefab, inactiveObstaclesSpawnLocation, Quaternion.identity);
-                obstacle.SetActive(false);
-                inactiveTriangles.Add(obstacle);
-            }
+            public Obstacle obstaclePrefab;
+            public float startingSpawnRate;
+            public float firstSpawn;
+            public int obstaclesSpawnAfterDeathIndex;
+            public int obstaclesSpawnAfterDeathCount;
         }
-        
-        void Update()
+
+        private void Awake()
         {
-            timeSinceLastActivated += Time.deltaTime;
-            if (!FindObjectOfType<Game>().isGameOver && timeSinceLastActivated >= activeRate)
+            game = FindObjectOfType<GameManager>();
+        }
+
+        private void Start()
+        {
+            obstacles = new List<Obstacle>[obstaclesPrefabs.Length];
+        }
+
+        private void Update()
+        {
+            timer += Time.deltaTime;
+            if (!game.isGameOver)
             {
-                timeSinceLastActivated = 0;
-                if (Random.Range(0, 2) == 1)
-                {
-                    if (inactiveSquares.Count > 0)
-                    {
-                        inactiveSquares[0].transform.SetPositionAndRotation(new Vector3(Random.Range(activeMin[0], activeMax[0]), Random.Range(activeMin[1], activeMax[1]), 0), transform.rotation);
-                        inactiveSquares[0].GetComponent<Obstacle>().RandomizeMovement();
-                        inactiveSquares[0].SetActive(true);
-                        inactiveSquares.RemoveAt(0);
-                    }
-                }
-                else
-                {
-                    if (inactiveTriangles.Count > 0)
-                    {
-                        inactiveTriangles[0].transform.SetPositionAndRotation(new Vector3(Random.Range(activeMin[0], activeMax[0]), Random.Range(activeMin[1], activeMax[1]), 0), transform.rotation);
-                        inactiveTriangles[0].GetComponent<Obstacle>().RandomizeMovement();
-                        inactiveTriangles[0].SetActive(true);
-                        inactiveTriangles.RemoveAt(0);
-                    }
-                }
-            }
-            if (activeRate > 0.01)
-            {
-                activeRate -= Time.deltaTime / 200;
+                SpawnObstacles();
             }
         }
 
-        public void AddToList(GameObject obstacle)
+        private void SpawnObstacles()
         {
-            if (obstacle.GetComponent<Obstacle>().type == Obstacle.Types.Triangle)
+            for (int index = 0; index < obstaclesPrefabs.Length; index++)
             {
-                inactiveTriangles.Add(obstacle);
+                if (timer >= obstaclesPrefabs[index].firstSpawn && timer % (obstaclesPrefabs[index].startingSpawnRate * currentSpawnRateMultiplier) < Time.deltaTime)
+                {
+                    SpawnObstacleWithIndex(index);
+                }
+            }
+        }
+
+        private void SpawnObstacleWithIndex(int index)
+        {
+            if (obstacles[index] == null)
+            {
+                obstacles[index] = new List<Obstacle>();
+                obstacles[index].Add(InstantiateObstacleWithIndex(index));
+                obstacles[index][0].gameObject.SetActive(false);
+            }
+            Obstacle obstacleToSpawn = null;
+            if (obstacles[index][0].gameObject.activeInHierarchy)
+            {
+                obstacleToSpawn = InstantiateObstacleWithIndex(index);
             }
             else
             {
-                inactiveSquares.Add(obstacle);
+                obstacleToSpawn = obstacles[index][0];
+                obstacles[index].RemoveAt(0);
             }
+            obstacles[index].Add(obstacleToSpawn);
+            obstacleToSpawn.Spawn(spawnArea);
         }
 
-        public void MakeTriangles(Vector2 position)
+        private Obstacle InstantiateObstacleWithIndex(int index)
         {
-            if (!FindObjectOfType<Game>().isGameOver && inactiveTriangles.Count > 1)
-            {
-                inactiveTriangles[0].transform.SetPositionAndRotation(new Vector3(position[0] + 0.1f, position[1] + 0.1f, 0), transform.rotation);
-                inactiveTriangles[0].GetComponent<Obstacle>().RandomizeMovement();
-                inactiveTriangles.RemoveAt(0);
-                inactiveTriangles[0].transform.SetPositionAndRotation(new Vector3(position[0] - 0.1f, position[1] - 0.1f, 0), transform.rotation);
-                inactiveTriangles[0].GetComponent<Obstacle>().RandomizeMovement();
-                inactiveTriangles.RemoveAt(0);
-            }
+            Obstacle instantiatedObstacle = Instantiate(obstaclesPrefabs[index].obstaclePrefab, new Vector3(3, 3, 0), new Quaternion(0, 0, 0, 1), transform);
+            instantiatedObstacle.Create(index);
+            return instantiatedObstacle;
         }
 
-        public bool ContainsObstacle(GameObject obstacle)
+        public void DestroyedObstacleWithindex(int index)
         {
-            if (inactiveTriangles.Contains(obstacle) || inactiveSquares.Contains(obstacle))
+            for(int i=0; i < obstaclesPrefabs[index].obstaclesSpawnAfterDeathCount; i++)
             {
-                return true;
-            }
-            else
-            {
-                return false;
+                SpawnObstacleWithIndex(obstaclesPrefabs[index].obstaclesSpawnAfterDeathIndex);
             }
         }
     }
