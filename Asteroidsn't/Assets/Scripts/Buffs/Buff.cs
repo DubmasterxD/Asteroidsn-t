@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Asteroids.Player;
+using UnityEngine;
 
-namespace Asteroids
+namespace Asteroids.Buffs
 {
     public class Buff : MonoBehaviour
     {

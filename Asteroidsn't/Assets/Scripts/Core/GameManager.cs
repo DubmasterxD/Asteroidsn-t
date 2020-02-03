@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Asteroids
+namespace Asteroids.Core
 {
     public class GameManager : MonoBehaviour
     {

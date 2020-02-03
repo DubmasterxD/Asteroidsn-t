@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Asteroids.Core;
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace Asteroids
+namespace Asteroids.Player
 {
     public class Stats : MonoBehaviour
     {

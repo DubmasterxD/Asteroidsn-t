@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Asteroids.Core;
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace Asteroids
+namespace Asteroids.Obstacles
 {
     public class SpawningObstacles : MonoBehaviour
     {

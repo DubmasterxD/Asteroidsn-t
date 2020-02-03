@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using Asteroids.Player;
+using UnityEngine;
 
-namespace Asteroids
+namespace Asteroids.Moving
 {
     public class ScrollingBackground : MonoBehaviour
     {
-        Vector2 uvOffset = Vector2.zero;
+        Vector2 uvOffset = new Vector2(0, 0);
 
         PlayerController player;
 

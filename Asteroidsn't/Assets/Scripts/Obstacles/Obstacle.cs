@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Asteroids
+namespace Asteroids.Obstacles
 {
     public class Obstacle : MonoBehaviour
     {
@@ -43,9 +43,10 @@ namespace Asteroids
             direction.y = Mathf.Sqrt(1 - Mathf.Pow(direction.x, 2));
             if (Random.Range(0, 2) == 0)
             {
-                direction[1] *= -1;
+                direction.y *= -1;
             }
-            rb.velocity = new Vector2(direction[0] * speed, direction[1] * speed);
+            rb.velocity = new Vector2(direction.x * speed, direction.y * speed);
+            Debug.Log(rb.velocity);
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -55,20 +56,6 @@ namespace Asteroids
                 gameObject.SetActive(false);
                 Instantiate(destroyParticlePrefab, transform.position, Quaternion.identity);
                 FindObjectOfType<SpawningObstacles>().DestroyedObstacleWithindex(obstacleIndex);
-                //if (!FindObjectOfType<SpawningObstacles>().ContainsObstacle(gameObject))
-                //{
-                //    Vector2 tmp = Vector2.negativeInfinity;
-                //    if (type == Types.Square)
-                //    {
-                //        tmp = transform.position;
-                //    }
-                //    transform.SetPositionAndRotation(new Vector3(inactiveObstaclesXLimit + 5, transform.position.y, 0), transform.rotation);
-                //    if (tmp[0] != float.NegativeInfinity)
-                //    {
-                //        FindObjectOfType<SpawningObstacles>().MakeTriangles(tmp);
-                //    }
-                //    FindObjectOfType<SpawningObstacles>().AddToList(gameObject);
-                //}
             }
         }
     }

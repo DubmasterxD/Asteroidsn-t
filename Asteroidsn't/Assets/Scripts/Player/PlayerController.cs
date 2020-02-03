@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Asteroids.Core;
+using UnityEngine;
 
-namespace Asteroids
+namespace Asteroids.Player
 {
     public class PlayerController : MonoBehaviour
     {

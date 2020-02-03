@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using Asteroids.Player;
+using UnityEngine;
 
-namespace Asteroids
+namespace Asteroids.Moving
 {
-    public class Moving : MonoBehaviour
+    public class MovingObject : MonoBehaviour
     {
         [SerializeField] float playSpaceEdge = 5.07f;
 
